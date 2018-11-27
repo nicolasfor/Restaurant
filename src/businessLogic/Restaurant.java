@@ -1,5 +1,6 @@
 package businessLogic;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class Restaurant {
@@ -15,7 +16,10 @@ public class Restaurant {
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+		File f = new File("tables.txt");
+		System.out.print("file " + f.getName() + " was found in " + f.getPath());
+		
 		
 	}
 
