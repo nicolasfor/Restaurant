@@ -1,24 +1,20 @@
 package businessLogic;
 
-public class Table {
+public class TakenTable {
 
+	private String id;
 	private String type;
 	private int seats;
-	private Customer occupied;
-	private WaitingList queue;
+	private Customer occupied;	
 	
-	public Table() {
-		// TODO Auto-generated constructor stub
+	public TakenTable(String id,String type, int seats, Customer occupied) {
+		super();
+		this.id = id;
+		this.type = type;
+		this.seats = seats;
+		this.occupied = occupied;
 	}
-	
-	public void bookTable(Customer customer)
-	{
-		this.setOccupied(customer);
-	}
-	public void releaseTable()
-	{
-		this.setOccupied(null);
-	}
+
 	public String getType() {
 		return type;
 	}
@@ -39,5 +35,14 @@ public class Table {
 	public void setOccupied(Customer occupied) {
 		this.occupied = occupied;
 	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 
 }
