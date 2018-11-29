@@ -192,7 +192,7 @@ public class Dispatcher {
 		}
 		if(released!=null)
 		{
-			String id = this.shuffleTables();
+			String id = this.shuffleTables(released.getType());
 			System.out.println("ID="+id);
 			Bill b = new Bill(released, new Date(), revenue);
 			this.bills.add(b);
@@ -200,10 +200,10 @@ public class Dispatcher {
 		return released!=null;		
 	}
 	
-	public String shuffleTables()
+	public String shuffleTables(String type)
 	{
 		String id=null;
-		if(!this.smallQueue.isEmpty())
+		if(!this.smallQueue.isEmpty() && type.equals(SMALL_TABLE_TYPE))
 		{
 			Customer c = this.smallQueue.getFirst();
 			if(this.smallTables.size()<this.getNumMediumTables())
@@ -216,9 +216,11 @@ public class Dispatcher {
 			else
 			{
 				id = this.checkAndAssignOtherTables(c);
+				if(id!=null)
+					this.smallQueue.removeFirst();
 			}
 		}
-		else if(!this.mediumQueue.isEmpty())
+		else if(!this.mediumQueue.isEmpty() && type.equals(MEDIUM_TABLE_TYPE))
 		{
 			Customer c = this.smallQueue.getFirst();
 			if(this.mediumTables.size()<this.getNumMediumTables())
@@ -231,9 +233,11 @@ public class Dispatcher {
 			else
 			{
 				id = this.checkAndAssignOtherTables(c);
+				if(id!=null)
+					this.mediumQueue.removeFirst();
 			}
 		}
-		else if(!this.largeQueue.isEmpty())
+		else if(!this.largeQueue.isEmpty() && type.equals(LARGE_TABLE_TYPE))
 		{
 			Customer c = this.largeQueue.getFirst();
 			if(this.largeTables.size()<this.getNumMediumTables())
@@ -246,9 +250,11 @@ public class Dispatcher {
 			else
 			{
 				id = this.checkAndAssignOtherTables(c);
+				if(id!=null)
+					this.largeQueue.removeFirst();
 			}
 		}
-		else if(!this.extraLargeQueue.isEmpty())
+		else if(!this.extraLargeQueue.isEmpty() && type.equals(EXTRA_LARGE_TABLE_TYPE))
 		{
 			Customer c = this.extraLargeQueue.getFirst();
 			if(this.extraLargeTables.size()<this.getNumMediumTables())
