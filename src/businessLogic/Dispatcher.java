@@ -82,6 +82,7 @@ public class Dispatcher {
 		String id=null;
 		int companions = c.getCompanions();
 		
+		
 		TableType mediumTable = this.getMediumTable();
 		TableType largeTable = this.getLargeTable();
 		TableType extraLargeTable = this.getExtraLargeTable();
