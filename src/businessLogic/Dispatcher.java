@@ -60,12 +60,12 @@ public class Dispatcher {
 	public String assignCustomer(Customer c)
 	{
 		int companions = c.getCompanions();
-		String id=null;
 
 		TableType type= this.getTableTypeByCapacity(companions);
 		ArrayList<TakenTable> taken = type.getTakenTables();
 		TakenTable newTaken = type.createNewTakenTable(c);
-		if(taken.size()<type.getCapacity())				
+		String id=newTaken.getId();
+		if(taken.size()<type.getNumTables())				
 			type.addTakenTable(newTaken);
 		else
 		{
@@ -83,38 +83,38 @@ public class Dispatcher {
 		int companions = c.getCompanions();
 		
 		TableType mediumTable = this.getMediumTable();
-		TableType largeTable = this.getMediumTable();
-		TableType extraLargeTable = this.getMediumTable();
+		TableType largeTable = this.getLargeTable();
+		TableType extraLargeTable = this.getExtraLargeTable();
 		
 		int mediumTakenSize = mediumTable.getTakenTables().size();
-		int largeTakenSize = mediumTable.getTakenTables().size();
-		int extraLargeTakenSize = mediumTable.getTakenTables().size();
+		int largeTakenSize = largeTable.getTakenTables().size();
+		int extraLargeTakenSize = extraLargeTable.getTakenTables().size();
 		
-		int mediumCapacity = mediumTable.getCapacity();
-		int largeCapacity = largeTable.getCapacity();
-		int extraLargeCapacity = extraLargeTable.getCapacity();
+		int numMediumTables = mediumTable.getNumTables();
+		int numLargeTables = largeTable.getNumTables();
+		int numExtraLargeTables = extraLargeTable.getNumTables();
 		
-		if(mediumTakenSize>=mediumCapacity || companions>MEDIUM_TABLE_PEOPLE_CAPACITY || mediumTable.getQueue().size()>0)
+		if(mediumTakenSize>=numMediumTables || companions>MEDIUM_TABLE_PEOPLE_CAPACITY || mediumTable.getQueue().size()>0)
 		{
-			if(largeTakenSize>=largeCapacity  || companions>LARGE_TABLE_PEOPLE_CAPACITY || largeTable.getQueue().size()>0)
+			if(largeTakenSize>=numLargeTables  || companions>LARGE_TABLE_PEOPLE_CAPACITY || largeTable.getQueue().size()>0)
 			{
-				if(extraLargeTakenSize<extraLargeCapacity && extraLargeTable.getQueue().size()==0)
+				if(extraLargeTakenSize<numExtraLargeTables && extraLargeTable.getQueue().size()==0)
 				{
-					id = EXTRA_LARGE_TABLE_TYPE+"-"+extraLargeCapacity;
+					id = EXTRA_LARGE_TABLE_TYPE+"-"+extraLargeTakenSize;
 					TakenTable t = new TakenTable(id, EXTRA_LARGE_TABLE_TYPE, EXTRA_TABLE_PEOPLE_CAPACITY, c);
 					extraLargeTable.addTakenTable(t);
 				}
 			}
 			else
 			{
-				id = LARGE_TABLE_TYPE+"-"+largeCapacity;
+				id = LARGE_TABLE_TYPE+"-"+largeTakenSize;
 				TakenTable t = new TakenTable(id, LARGE_TABLE_TYPE, LARGE_TABLE_PEOPLE_CAPACITY, c);
 				largeTable.addTakenTable(t);
 			}
 		}
 		else
 		{
-			id = MEDIUM_TABLE_TYPE+"-"+mediumCapacity;
+			id = MEDIUM_TABLE_TYPE+"-"+mediumTakenSize;
 			TakenTable t = new TakenTable(id, MEDIUM_TABLE_TYPE, MEDIUM_TABLE_PEOPLE_CAPACITY, c);
 			this.mediumTable.addTakenTable(t);
 		}
