@@ -1,7 +1,15 @@
 package businessLogic;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Restaurant {
 
@@ -9,51 +17,56 @@ public class Restaurant {
 	private ArrayList<Table> mediumTables;
 	private ArrayList<Table> largeTables;
 	private ArrayList<Table> extraLargeTables;
-	
-	
+
 	public Restaurant() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		
-		File f = new File("tables.txt");
-		System.out.print("file " + f.getName() + " was found in " + f.getPath());
+		System.out.println("hola "+ args[0]);
 		
+		for (String file : args) {
+		File f = new File(file);
 		
+		System.out.println("file name: " + f.getName());
+        System.out.println("Path name: " + f.getPath());
+        
+
+		if (f.exists()) {
+			
+			System.out.println("existe");
+
+			System.out.print("file " + f.getName() + " was found in " + f.getPath());
+
+			Restaurant resume = new Restaurant();
+
+			String lista;
+			
+			lista = resume.readLineByLineJava8(f.getName());
+			System.out.println("Estos son los elementos de lista:\n" + lista);
+			
+			Stream<String> stream = Stream.of(lista.toLowerCase().replaceAll(lista, lista).split("\\W+")).parallel();
+			
+			Map<String, Long> wordFreq = stream.filter(w -> w.matches("medium")).parallel()
+					.filter(w -> !w.matches("-?\\d+(\\.\\d+)?")
+					.collect(Collectors.groupingBy(String::toString, Collectors.counting()));		
+			}
+		}
 	}
 
-	public ArrayList<Table> getSmallTables() {
-		return smallTables;
-	}
+	String readLineByLineJava8(String filePath) throws IOException {
+		System.out.println("filepath is: " + filePath);
 
-	public void setSmallTables(ArrayList<Table> smallTables) {
-		this.smallTables = smallTables;
-	}
+		StringBuilder contentBuilder = new StringBuilder();
 
-	public ArrayList<Table> getMediumTables() {
-		return mediumTables;
-	}
+		Path file = Paths.get("C:\\Users\\Felia\\git\\Restaurant\\tables.txt");
 
-	public void setMediumTables(ArrayList<Table> mediumTables) {
-		this.mediumTables = mediumTables;
-	}
-
-	public ArrayList<Table> getLargeTables() {
-		return largeTables;
-	}
-
-	public void setLargeTables(ArrayList<Table> largeTables) {
-		this.largeTables = largeTables;
-	}
-
-	public ArrayList<Table> getExtraLargeTables() {
-		return extraLargeTables;
-	}
-
-	public void setExtraLargeTables(ArrayList<Table> extraLargeTables) {
-		this.extraLargeTables = extraLargeTables;
-	}
+		try (Stream<String> stream = Files.lines(file)) {
+			stream.forEach(s -> contentBuilder.append(s).append("\n"));
+		}
+		
+		return contentBuilder.toString();
 	
-
+	}
 }

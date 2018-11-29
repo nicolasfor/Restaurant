@@ -1,0 +1,4 @@
+<SMALL>-<1>
+<MEDIUM>-<1>
+<Large>-<1>
+<ExtraLARGE>-<1>
