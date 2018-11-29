@@ -56,14 +56,14 @@ public class Dispatcher {
 	public String assignCustomer(Customer c)
 	{
 		int companions = c.getCompanions();
-		int available;
+		int busy;
 		String id=null;
 		if(companions<=SMALL_TABLE_PEOPLE_CAPACITY)
 		{
-			available=this.smallTables.size();
+			busy=this.smallTables.size();
 			id = SMALL_TABLE_TYPE+"-"+this.smallTables.size();
 			TakenTable t = new TakenTable(id, SMALL_TABLE_TYPE,SMALL_TABLE_PEOPLE_CAPACITY , c);
-			if(available<numSmallTables)				
+			if(busy<this.getNumSmallTables())				
 				smallTables.add(t);
 			else
 			{
@@ -74,10 +74,10 @@ public class Dispatcher {
 		}
 		else if(companions<=MEDIUM_TABLE_PEOPLE_CAPACITY) 
 		{
-			available=this.mediumTables.size();
+			busy=this.mediumTables.size();
 			id = MEDIUM_TABLE_TYPE+"-"+this.mediumTables.size();
 			TakenTable t = new TakenTable(id,MEDIUM_TABLE_TYPE ,MEDIUM_TABLE_PEOPLE_CAPACITY , c);
-			if(available<numMediumTables)
+			if(busy<this.getNumMediumTables())
 				mediumTables.add(t);
 			else
 			{
@@ -88,10 +88,10 @@ public class Dispatcher {
 		}
 		else if(companions<=LARGE_TABLE_PEOPLE_CAPACITY) 
 		{
-			available=this.largeTables.size();
+			busy=this.largeTables.size();
 			id = LARGE_TABLE_TYPE+"-"+this.largeTables.size();
 			TakenTable t = new TakenTable(id, LARGE_TABLE_TYPE,LARGE_TABLE_PEOPLE_CAPACITY , c);
-			if(available<numLargeTables)				
+			if(busy<this.getNumLargeTables())				
 				largeTables.add(t);
 			else
 			{
@@ -103,9 +103,9 @@ public class Dispatcher {
 		else
 		{
 			id = EXTRA_LARGE_TABLE_TYPE+"-"+this.extraLargeTables.size();
-			available=this.extraLargeTables.size();
+			busy=this.extraLargeTables.size();
 			TakenTable t = new TakenTable(id, EXTRA_LARGE_TABLE_TYPE,EXTRA_TABLE_PEOPLE_CAPACITY, c);
-			if(available<numExtraLargeTables)
+			if(busy<this.getNumExtraLargeTables())
 				extraLargeTables.add(t);
 			else
 			{
