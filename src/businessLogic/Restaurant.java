@@ -7,52 +7,51 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
 
 public class Restaurant {
 
-	private ArrayList<Table> smallTables;
-	private ArrayList<Table> mediumTables;
-	private ArrayList<Table> largeTables;
-	private ArrayList<Table> extraLargeTables;
+	private Dispatcher dispatcher;
+	
 
-	public Restaurant() {
+	public Restaurant(Integer s, Integer m, Integer l, Integer xl) {
 		// TODO Auto-generated constructor stub
+		this.dispatcher = new Dispatcher(s,m,l,xl);
 	}
 
 	public static void main(String[] args) throws IOException {
 		
-		System.out.println("hola "+ args[0]);
 		
-		for (String file : args) {
-		File f = new File(file);
-		
-		System.out.println("file name: " + f.getName());
-        System.out.println("Path name: " + f.getPath());
-        
+		File file = new File("C:\\Users\\Felia\\git\\Restaurant\\tables.txt");
 
-		if (f.exists()) {
+		if (file.exists()) {
 			
 			System.out.println("existe");
 
-			System.out.print("file " + f.getName() + " was found in " + f.getPath());
+			System.out.print("file " + file.getName() + " was found in " + file.getPath());
 
-			Restaurant resume = new Restaurant();
-
-			String lista;
+			List<Integer> allValues;		    		   
+		    
+		    try(Stream<String> lines=Files.lines(file.toPath())) {
+		    allValues=lines.flatMap(Pattern.compile(" *")::splitAsStream)
+		         .filter(s -> s.matches("[0-9]+"))
+		         .map(Integer::valueOf)
+		         .collect(Collectors.toList());
 			
-			lista = resume.readLineByLineJava8(f.getName());
-			System.out.println("Estos son los elementos de lista:\n" + lista);
-			
-			Stream<String> stream = Stream.of(lista.toLowerCase().replaceAll(lista, lista).split("\\W+")).parallel();
-			
-			Map<String, Long> wordFreq = stream.filter(w -> w.matches("medium")).parallel()
-					.filter(w -> !w.matches("-?\\d+(\\.\\d+)?")
-					.collect(Collectors.groupingBy(String::toString, Collectors.counting()));		
+		    allValues.forEach(v->System.out.println(v));
+		    
 			}
-		}
+			
+				Restaurant t = new Restaurant(allValues.get(0),allValues.get(1),allValues.get(2),allValues.get(3));
+				t.test();
+		
+		}				       
 	}
 
 	String readLineByLineJava8(String filePath) throws IOException {
@@ -67,6 +66,35 @@ public class Restaurant {
 		}
 		
 		return contentBuilder.toString();
-	
+		
 	}
+
+
+	public void test()
+	{
+		System.out.println("Enter a customer name and people: ");
+		Scanner sc = new Scanner(System.in);
+		String str = sc.nextLine();
+		while(!str.isEmpty())
+		{
+			String [] line = str.split("-");
+			String s = this.assignCustomer(line[0], Integer.parseInt(line[1]));
+			System.out.println("RESPONSE: "+s);
+			str = sc.nextLine();
+		}
+		
+	}
+	
+	public String assignCustomer(String name, int numPeople)
+	{
+		Customer c = new Customer(name,numPeople);
+		String enqueued = dispatcher.assignCustomer(c);
+		return enqueued;
+	}
+	
+	public void releaseTable(String tableId, int revenue)
+	{
+		boolean released = dispatcher.releaseTable(tableId, revenue);
+	}
+	
 }
