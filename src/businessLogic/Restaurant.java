@@ -48,7 +48,8 @@ public class Restaurant {
 		    
 			}
 			
-				Restaurant t = new Restaurant(allValues.get(0),allValues.get(1),allValues.get(2),allValues.get(3));
+				Restaurant t = new Restaurant(allValues.get(0),allValues.get(1),
+						allValues.get(2),allValues.get(3));
 				t.test();
 		
 		}				       
