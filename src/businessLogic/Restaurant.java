@@ -88,6 +88,8 @@ public class Restaurant {
 						System.out.println("4. Enter END_DAY");
 						System.out.println("5. Enter SHOW_REV");
 						System.out.println("6. Enter SHOW_TAB STATUS|{USERS table_type}");
+						System.out.println("7. Enter SHOW_RES");
+						System.out.println("8. Enter CHANGE_TAB table_type number_of_tables");
 					}
 				} catch (InputMismatchException e) {
 					System.out.println("Not allowed format. please cheack and try again!");
