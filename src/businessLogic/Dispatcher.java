@@ -3,6 +3,10 @@ package businessLogic;
 import java.util.ArrayList;
 import java.util.Date;
 
+import exceptions.CustomerNotFoundException;
+import exceptions.OutOfBoundQueueException;
+import exceptions.TableNotFoundException;
+
 public class Dispatcher {
 	
 	private static final int MAX_CAPACITY_QUEUE=20;
@@ -23,6 +27,8 @@ public class Dispatcher {
 	private TableType extraLargeTable;
 	
 	private ArrayList<Bill> bills;
+
+	private int currentDate;
 	
 	public Dispatcher(int numSmallTables,int numMediumTables,int numLargeTables,int numExtraLargeTables) {
 		// TODO Auto-generated constructor stub
@@ -31,6 +37,7 @@ public class Dispatcher {
 		this.largeTable = new TableType(numLargeTables,LARGE_TABLE_TYPE,LARGE_TABLE_PEOPLE_CAPACITY);
 		this.extraLargeTable = new TableType(numExtraLargeTables,EXTRA_LARGE_TABLE_TYPE,EXTRA_TABLE_PEOPLE_CAPACITY);
 		bills = new ArrayList<Bill>();
+		this.currentDate = 1;
 	}
 	
 	public TableType getTableTypeByCapacity(int companions)
@@ -44,7 +51,7 @@ public class Dispatcher {
 		else
 			return this.getExtraLargeTable();
 	}
-	public TableType getTableTypeByType(String name)
+	public TableType getTableTypeByType(String name) throws TableNotFoundException
 	{
 		if(name.equals(SMALL_TABLE_TYPE))
 			return this.getSmallTable();
@@ -54,24 +61,24 @@ public class Dispatcher {
 			return this.getLargeTable();
 		else if(name.equals(EXTRA_LARGE_TABLE_TYPE))
 			return this.getExtraLargeTable();
-		return null;
+		throw new TableNotFoundException();
 	}
 	
-	public String assignCustomer(Customer c)
+	public String assignCustomer(Customer c) throws OutOfBoundQueueException
 	{
 		int companions = c.getCompanions();
 
 		TableType type= this.getTableTypeByCapacity(companions);
-		ArrayList<TakenTable> taken = type.getTakenTables();
-		TakenTable newTaken = type.createNewTakenTable(c);
-		String id=newTaken.getId();
-		if(taken.size()<type.getNumTables())				
-			type.addTakenTable(newTaken);
+		String id= null;
+		if(type.getNumAvailableTables()>0)
+			id = type.bookTable(c);
 		else
 		{
 			id = this.checkAndAssignOtherTables(c);
-			if(id==null)
+			if(id==null && type.getQueue().size()<MAX_CAPACITY_QUEUE)
 				type.addToQueue(c);
+			else if(type.getQueue().size()>=MAX_CAPACITY_QUEUE)
+				throw new OutOfBoundQueueException();
 		}
 		
 		return id;
@@ -82,101 +89,108 @@ public class Dispatcher {
 		String id=null;
 		int companions = c.getCompanions();
 		
-		
 		TableType mediumTable = this.getMediumTable();
 		TableType largeTable = this.getLargeTable();
 		TableType extraLargeTable = this.getExtraLargeTable();
 		
-		int mediumTakenSize = mediumTable.getTakenTables().size();
-		int largeTakenSize = largeTable.getTakenTables().size();
-		int extraLargeTakenSize = extraLargeTable.getTakenTables().size();
+		int mediumAvailable = mediumTable.getNumAvailableTables();
+		int largeAvailable = largeTable.getNumAvailableTables();
+		int extraLargeAvailable = extraLargeTable.getNumAvailableTables();
 		
-		int numMediumTables = mediumTable.getNumTables();
-		int numLargeTables = largeTable.getNumTables();
-		int numExtraLargeTables = extraLargeTable.getNumTables();
-		
-		if(mediumTakenSize>=numMediumTables || companions>MEDIUM_TABLE_PEOPLE_CAPACITY || mediumTable.getQueue().size()>0)
+		if(mediumAvailable==0 || companions>MEDIUM_TABLE_PEOPLE_CAPACITY || mediumTable.getQueue().size()>0)
 		{
-			if(largeTakenSize>=numLargeTables  || companions>LARGE_TABLE_PEOPLE_CAPACITY || largeTable.getQueue().size()>0)
+			if(largeAvailable==0  || companions>LARGE_TABLE_PEOPLE_CAPACITY || largeTable.getQueue().size()>0)
 			{
-				if(extraLargeTakenSize<numExtraLargeTables && extraLargeTable.getQueue().size()==0)
-				{
-					id = EXTRA_LARGE_TABLE_TYPE+"-"+extraLargeTakenSize;
-					TakenTable t = new TakenTable(id, EXTRA_LARGE_TABLE_TYPE, EXTRA_TABLE_PEOPLE_CAPACITY, c);
-					extraLargeTable.addTakenTable(t);
-				}
+				if(extraLargeAvailable>0 && extraLargeTable.getQueue().size()==0)
+					id = extraLargeTable.bookTable(c);
 			}
 			else
-			{
-				id = LARGE_TABLE_TYPE+"-"+largeTakenSize;
-				TakenTable t = new TakenTable(id, LARGE_TABLE_TYPE, LARGE_TABLE_PEOPLE_CAPACITY, c);
-				largeTable.addTakenTable(t);
-			}
+				id = largeTable.bookTable(c);
 		}
 		else
-		{
-			id = MEDIUM_TABLE_TYPE+"-"+mediumTakenSize;
-			TakenTable t = new TakenTable(id, MEDIUM_TABLE_TYPE, MEDIUM_TABLE_PEOPLE_CAPACITY, c);
-			this.mediumTable.addTakenTable(t);
-		}
+			id = mediumTable.bookTable(c);
 		return id;
 	}
 	
-	public boolean releaseTable(String tableId, int revenue)
+	public void releaseTable(String tableId, int revenue) throws TableNotFoundException
 	{
 		String [] tableIdParts = tableId.split("-");
-		TakenTable released = null;
-		if(tableIdParts.length>1)
+		if(tableIdParts.length>0)
 		{
 			String type = tableIdParts[0];
-			String indexS = tableIdParts[1];
-			if(!type.isEmpty() && !indexS.isEmpty())
+			if(!type.isEmpty())
 			{
-				
-				try {
-					int index = Integer.parseInt(indexS);
 					TableType tableType = this.getTableTypeByType(type);
 					if(tableType!=null)
 					{
-						released = tableType.getTakenTables().get(index);
-						tableType.getTakenTables().remove(index);
-						String id = this.shuffleTables(released.getType());
-						System.out.println("ID="+id);
-						Bill b = new Bill(released, new Date(), revenue);
+						Table released = tableType.freeTable(tableId);
+						String id = this.shuffleTables(type);
+						Bill b = new Bill(released, this.getCurrentDate(), revenue);
 						this.bills.add(b);
 					}
-				}
-				catch (Exception e) {
-					
-				}
 			}
 		}
-		return released!=null;		
 	}
 	
-	public String shuffleTables(String type)
+	public String shuffleTables(String type) throws TableNotFoundException
 	{
 		String id=null;
 		TableType tableType = this.getTableTypeByType(type);
 		if(tableType!=null && !tableType.getQueue().isEmpty())
 		{
 			Customer c = tableType.getQueue().getFirst();
-			if(tableType.getTakenTables().size()<tableType.getCapacity())
-			{
-				id = tableType.getType()+"-"+tableType.getCapacity();
-				TakenTable t = new TakenTable(id,tableType.getType() ,tableType.getCapacity() , c);
-				tableType.addTakenTable(t);
-			}
+			if(tableType.getNumAvailableTables()>0)
+				id = tableType.bookTable(c);
 			else
-			{
 				id = this.checkAndAssignOtherTables(c);
-				if(id!=null)
-					tableType.getQueue().removeFirst();
-			}
 		}
+		
+		if(id!=null)
+			tableType.getQueue().removeFirst();
 		return id;
 	}
-
+	
+	public void cancelReservation(String name)throws CustomerNotFoundException
+	{
+		boolean found = this.smallTable.findAndRemoveCustomerInQueued(name);
+		if(!found)
+			found = this.mediumTable.findAndRemoveCustomerInQueued(name);
+		if(!found)
+			found = this.largeTable.findAndRemoveCustomerInQueued(name);
+		if(!found)
+			found = this.extraLargeTable.findAndRemoveCustomerInQueued(name);
+		
+		if(!found)
+			throw new CustomerNotFoundException();
+	}
+	
+	public ArrayList<Table> getInformationByTableType(String type) throws TableNotFoundException
+	{
+		TableType tt = this.getTableTypeByType(type);
+		return tt.getTables();
+	}
+	
+	public void addNewDay()
+	{
+		this.setCurrentDate(this.getCurrentDate()+1);
+	}
+	
+	public int getSmallTablesAvailable()
+	{
+		return this.getSmallTable().getNumAvailableTables();
+	}
+	public int getMediumTablesAvailable()
+	{
+		return this.getMediumTable().getNumAvailableTables();
+	}
+	public int getLargeTablesAvailable()
+	{
+		return this.getLargeTable().getNumAvailableTables();
+	}
+	public int getExtraLargeTablesAvailable()
+	{
+		return this.getExtraLargeTable().getNumAvailableTables();
+	}
 	public TableType getSmallTable() {
 		return smallTable;
 	}
@@ -208,7 +222,21 @@ public class Dispatcher {
 	public void setExtraLargeTable(TableType extraLargeTable) {
 		this.extraLargeTable = extraLargeTable;
 	}
+
+	public int getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(int currentDate) {
+		this.currentDate = currentDate;
+	}
 	
-	
+	public ArrayList<Bill> getBills() {
+		return bills;
+	}
+
+	public void setBills(ArrayList<Bill> bills) {
+		this.bills = bills;
+	}
 
 }

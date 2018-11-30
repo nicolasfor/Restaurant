@@ -3,37 +3,76 @@ package businessLogic;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import exceptions.TableNotFoundException;
+
 public class TableType {
 	
 	private LinkedList<Customer> queue;
-	private ArrayList<TakenTable> takenTables;
-	private int numTables;
+	private ArrayList<Table> tables;
+	private int numAvailableTables;
 	private String type;
 	private int capacity;
+	private int numTables;
 	
 	public TableType(int numTables, String type, int capacity) {
-		this.numTables = numTables;
+		
 		this.type = type;
 		this.capacity = capacity;
 		this.queue = new LinkedList<Customer>();
-		this.takenTables = new ArrayList<TakenTable>();
+		this.tables = new ArrayList<Table>();
+		this.numAvailableTables = numTables;
+		this.numTables = numTables;
+		for (int i = 0; i < numTables; i++) {
+			tables.add(new Table(type+"-"+i, type, capacity));
+		}
 	}
 
-	public TakenTable createNewTakenTable(Customer c)
+	public String bookTable(Customer c)
 	{
-		String type = this.getType();
-		String id = type+"-"+this.takenTables.size();
-		int capacity = this.getCapacity();
-		return new TakenTable(id, type, capacity, c);
+		for (int i = 0; i < tables.size(); i++) {
+			if(!tables.get(i).isBusy())
+			{
+				tables.get(i).bookTable(c);
+				this.setNumAvailableTables(getNumAvailableTables()-1);
+				return tables.get(i).getId();
+			}
+		}
+		return null;		
 	}
-	public void addTakenTable(TakenTable table)
+	
+	public Table freeTable(String id) throws TableNotFoundException
 	{
-		this.takenTables.add(table);
+		boolean found = false; 
+		for (int i = 0; i < tables.size(); i++) {
+			if(tables.get(i).getId().equals(id))
+			{
+				found = true;
+				tables.get(i).freeTable();
+				this.setNumAvailableTables(getNumAvailableTables()+1);
+				return tables.get(i);
+			}
+		}
+		if(!found)
+			throw new TableNotFoundException();
+		return null;
 	}
 	public void addToQueue(Customer c)
 	{
 		this.queue.add(c);
 	}
+	public boolean findAndRemoveCustomerInQueued(String name)
+	{
+		boolean exists= false;
+		for (int i = 0; i < queue.size(); i++) {
+			if(queue.get(i).getName().equals(name))
+			{
+				exists=true;
+				queue.remove(i);
+			}
+		}
+		return exists;
+	}
+
 	public LinkedList<Customer> getQueue() {
 		return queue;
 	}
@@ -42,20 +81,12 @@ public class TableType {
 		this.queue = queue;
 	}
 
-	public ArrayList<TakenTable> getTakenTables() {
-		return takenTables;
+	public int getNumAvailableTables() {
+		return numAvailableTables;
 	}
 
-	public void setTakenTables(ArrayList<TakenTable> takenTables) {
-		this.takenTables = takenTables;
-	}
-
-	public int getNumTables() {
-		return numTables;
-	}
-
-	public void setNumTables(int numTables) {
-		this.numTables = numTables;
+	public void setNumAvailableTables(int numTables) {
+		this.numAvailableTables = numTables;
 	}
 
 	public String getType() {
@@ -72,6 +103,22 @@ public class TableType {
 
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
+	}
+
+	public ArrayList<Table> getTables() {
+		return tables;
+	}
+
+	public void setTables(ArrayList<Table> tables) {
+		this.tables = tables;
+	}
+
+	public int getNumTables() {
+		return numTables;
+	}
+
+	public void setNumTables(int numTables) {
+		this.numTables = numTables;
 	}
 	
 	

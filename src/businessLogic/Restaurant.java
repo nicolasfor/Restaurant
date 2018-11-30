@@ -3,10 +3,17 @@ package businessLogic;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import exceptions.CustomerNotFoundException;
+import exceptions.OutOfBoundQueueException;
+import exceptions.TableNotFoundException;
+
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -21,7 +28,7 @@ public class Restaurant {
 
 	public static void main(String[] args) throws IOException {
 
-		File file = new File("C:\\Users\\Felia\\git\\Restaurant\\tables.txt");
+		File file = new File("tables.txt");
 
 		if (file.exists()) {
 
@@ -52,6 +59,7 @@ public class Restaurant {
 					switch (line[0]) {
 					case "ASSIGN":
 						String s = t.assign(line[1], Integer.parseInt(line[2]));
+						if(s!=null && !s.isEmpty())
 						System.out.println("RESPONSE: " + s);
 						break;
 					case "FREE":
@@ -67,11 +75,11 @@ public class Restaurant {
 						t.showRev();
 						break;
 					case "SHOW_TAB":
-						if(line[1]=="STATUS")
+						if(line[1].equals("STATUS"))
 						{
 							t.showTab_status();
 						}else
-						if(line[1]=="USERS"){
+						if(line[1].equals("USERS")){
 							t.showTab_users(line[2]);
 						}
 						break;
@@ -102,40 +110,114 @@ public class Restaurant {
 
 	public String assign(String name, int numPeople) {
 		Customer c = new Customer(name, numPeople);
-		String enqueued = dispatcher.assignCustomer(c);
-		return enqueued;
+		try 
+		{
+			return dispatcher.assignCustomer(c);
+		} 
+		catch (OutOfBoundQueueException e) 
+		{
+			System.out.println(e.getMessage());
+		}
+		return null;
 	}
 
 	public void free(String tableId, int revenue) {
-		boolean released = dispatcher.releaseTable(tableId, revenue);
-		System.out.println("Table: " + tableId + "has been released!");
+		try 
+		{
+			dispatcher.releaseTable(tableId, revenue);
+			System.out.println("Table: " + tableId + " has been released!");
+		}
+		catch (TableNotFoundException e) 
+		{
+			System.out.println(e.getMessage());
+		}
+		catch (NumberFormatException e) 
+		{
+		   System.out.println("Table id format error");
+		}
+		
 	}
 	
 	public void cancelRes(String name){
-		//agregado un nuevo constructor en Customer
-		Customer c = new Customer(name);
-		//pendiente de crear metodo de cancelacion de reservación
-		System.out.println("The reservation of:" + name + "has been cancelled" );
+		try {
+			dispatcher.cancelReservation(name);
+			System.out.println("The reservation of:" + name + "has been cancelled" );
+		} catch (CustomerNotFoundException e) {
+			System.out.println(e.getMessage());
+		}
+		
 	}
 	
 	public void showTab_status() {
-		System.out.println("the current status of tables of each table type is:");
+		int smallAvailable = dispatcher.getSmallTablesAvailable();
+		int mediumAvailable = dispatcher.getMediumTablesAvailable();
+		int largeAvailable = dispatcher.getLargeTablesAvailable();
+		int extraLargeAvailable = dispatcher.getExtraLargeTablesAvailable();
+		
+		System.out.println("the current status of tables for each table type is:");
+		System.out.println("There are "+smallAvailable+" out of "+dispatcher.getSmallTable().getNumTables());
+		System.out.println("There are "+mediumAvailable+" out of "+dispatcher.getMediumTable().getNumTables());
+		System.out.println("There are "+largeAvailable+" out of "+dispatcher.getLargeTable().getNumTables());
+		System.out.println("There are "+extraLargeAvailable+" out of "+dispatcher.getExtraLargeTable().getNumTables());
 	}
 	
-	public void showTab_users(String table_id) {
-		System.out.println("Tables taken for type: "+ table_id );
+	public void showTab_users(String tableType) {
+		
+		try 
+		{
+			ArrayList<Table> tables = dispatcher.getInformationByTableType(tableType);
+			System.out.println("Tables taken for type: "+ tableType );
+			for (int i = 0; i < tables.size(); i++) {
+				if(tables.get(i).isBusy())
+					System.out.println("Table "+ tables.get(i).getId()+" is taken by "+tables.get(i).getCustomer().getName());
+			}
+
+			
+		} 
+		catch (TableNotFoundException e) 
+		{
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public void endDay() {
+		dispatcher.addNewDay();
 		System.out.println("Day ends an bills are counted");
 	}
 	
 	public void showRev() {
+		ArrayList<Bill> bills = dispatcher.getBills();
+			
 		System.out.println("revenue is:");
 	}
 	
 	public void showRes() {
 		System.out.println("waiting list including the name and the number of people is:");
+		LinkedList<Customer> smallQueue = dispatcher.getSmallTable().getQueue();
+		LinkedList<Customer> mediumQueue = dispatcher.getMediumTable().getQueue();
+		LinkedList<Customer> largeQueue = dispatcher.getLargeTable().getQueue();
+		LinkedList<Customer> extraLargeQueue = dispatcher.getExtraLargeTable().getQueue();
+		
+		if(smallQueue.size()>0)
+			System.out.println("For the small queue:");
+		for (int i = 0; i < smallQueue.size(); i++) {
+			System.out.println("Customer: "+smallQueue.get(i).getName()+ "with "+smallQueue.get(i).getCompanions()+" companions");
+		}
+		if(mediumQueue.size()>0)
+			System.out.println("For the medium queue:");
+		for (int i = 0; i < mediumQueue.size(); i++) {
+			System.out.println("Customer: "+mediumQueue.get(i).getName()+ "with "+mediumQueue.get(i).getCompanions()+" companions");
+		}
+		if(largeQueue.size()>0)
+			System.out.println("For the large queue:");
+		for (int i = 0; i < largeQueue.size(); i++) {
+			System.out.println("Customer: "+largeQueue.get(i).getName()+ "with "+largeQueue.get(i).getCompanions()+" companions");
+		}
+		if(extraLargeQueue.size()>0)
+			System.out.println("For the extra large queue:");
+		for (int i = 0; i < extraLargeQueue.size(); i++) {
+			System.out.println("Customer: "+extraLargeQueue.get(i).getName()+ "with "+extraLargeQueue.get(i).getCompanions()+" companions");
+		}
 	}
 	
 	public void changeTab(String tableType, int numberOfTables) {

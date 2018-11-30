@@ -4,31 +4,31 @@ import java.util.Date;
 
 public class Bill {
 
-	private TakenTable table;
-	private Date date;
+	private Table table;
+	private int date;
 	private int revenue;
 	
 	
-	public Bill(TakenTable table, Date date, int money) {
+	public Bill(Table table, int date, int money) {
 		super();
 		this.table = table;
 		this.date = date;
 		this.revenue = money;
 	}
 
-	public TakenTable getTable() {
+	public Table getTable() {
 		return table;
 	}
 
-	public void setTable(TakenTable table) {
+	public void setTable(Table table) {
 		this.table = table;
 	}
 
-	public Date getDate() {
+	public int getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(int date) {
 		this.date = date;
 	}
 
