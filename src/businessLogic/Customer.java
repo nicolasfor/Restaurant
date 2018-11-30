@@ -11,6 +11,10 @@ public class Customer {
 		this.companions = companions;
 	}
 
+	public Customer(String name) {
+		this.name = name;
+	}
+
 	public int getCompanions() {
 		return companions;
 	}

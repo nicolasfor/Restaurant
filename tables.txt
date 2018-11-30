@@ -1,4 +1,4 @@
-<SMALL>-<1>
-<MEDIUM>-<1>
-<Large>-<1>
-<ExtraLARGE>-<1>
+SMALL-2
+MEDIUM-2
+Large-2
+ExtraLARGE-2
