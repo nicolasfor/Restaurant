@@ -25,7 +25,7 @@ public class Restaurant {
 
 		if (file.exists()) {
 
-			System.out.println("existe");
+			//System.out.println("el archivo existe");
 
 			System.out.print("file " + file.getName() + " was found in " + file.getPath());
 
@@ -34,7 +34,8 @@ public class Restaurant {
 			try (Stream<String> lines = Files.lines(file.toPath())) {
 				allValues = lines.flatMap(Pattern.compile(" *")::splitAsStream).filter(s -> s.matches("[0-9]+"))
 						.map(Integer::valueOf).collect(Collectors.toList());
-				allValues.forEach(v -> System.out.println(v));
+				//imprime los valores de los tipos de tablas encontrados en el archivo por cada linea
+				//allValues.forEach(v -> System.out.println(v));
 			}
 			Restaurant t = new Restaurant(allValues.get(0), allValues.get(1), allValues.get(2), allValues.get(3));
 
