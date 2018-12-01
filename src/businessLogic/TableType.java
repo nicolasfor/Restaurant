@@ -40,21 +40,41 @@ public class TableType {
 		return null;		
 	}
 	
-	public Table freeTable(String id) throws TableNotFoundException
+	public void addNewDay(int newDay)
+	{
+		for (int i = 0; i < tables.size(); i++) {
+			tables.get(i).addNewDay(newDay);
+		}
+	}
+	public ArrayList<DayRevenue> getDailyRevenues()
+	{
+		ArrayList<DayRevenue> revenues = new ArrayList<DayRevenue>();
+		for (int i = 0; i < tables.size(); i++) {
+			revenues.addAll(tables.get(i).getDailyRevenue());
+		}
+		return revenues;
+	}
+	public boolean alreadyExistsCustomerInQueue(String name)
+	{
+		for (int i = 0; i < queue.size(); i++) {
+			if(queue.get(i).getName().equals(name))
+				return true;
+		}
+		return false;
+	}
+	public void freeTable(String id, int revenue) throws TableNotFoundException
 	{
 		boolean found = false; 
 		for (int i = 0; i < tables.size(); i++) {
 			if(tables.get(i).getId().equals(id))
 			{
 				found = true;
-				tables.get(i).freeTable();
+				tables.get(i).freeTable(revenue);
 				this.setNumAvailableTables(getNumAvailableTables()+1);
-				return tables.get(i);
 			}
 		}
 		if(!found)
 			throw new TableNotFoundException();
-		return null;
 	}
 	public void addToQueue(Customer c)
 	{

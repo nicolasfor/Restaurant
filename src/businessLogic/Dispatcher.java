@@ -3,6 +3,7 @@ package businessLogic;
 import java.util.ArrayList;
 import java.util.Date;
 
+import exceptions.CustomerAlreadyExistsException;
 import exceptions.CustomerNotFoundException;
 import exceptions.OutOfBoundQueueException;
 import exceptions.TableNotFoundException;
@@ -26,8 +27,6 @@ public class Dispatcher {
 	private TableType largeTable;
 	private TableType extraLargeTable;
 	
-	private ArrayList<Bill> bills;
-
 	private int currentDate;
 	
 	public Dispatcher(int numSmallTables,int numMediumTables,int numLargeTables,int numExtraLargeTables) {
@@ -36,7 +35,6 @@ public class Dispatcher {
 		this.mediumTable = new TableType(numMediumTables,MEDIUM_TABLE_TYPE,MEDIUM_TABLE_PEOPLE_CAPACITY);
 		this.largeTable = new TableType(numLargeTables,LARGE_TABLE_TYPE,LARGE_TABLE_PEOPLE_CAPACITY);
 		this.extraLargeTable = new TableType(numExtraLargeTables,EXTRA_LARGE_TABLE_TYPE,EXTRA_TABLE_PEOPLE_CAPACITY);
-		bills = new ArrayList<Bill>();
 		this.currentDate = 1;
 	}
 	
@@ -64,7 +62,7 @@ public class Dispatcher {
 		throw new TableNotFoundException();
 	}
 	
-	public String assignCustomer(Customer c) throws OutOfBoundQueueException
+	public String assignCustomer(Customer c) throws OutOfBoundQueueException, CustomerAlreadyExistsException
 	{
 		int companions = c.getCompanions();
 
@@ -76,7 +74,14 @@ public class Dispatcher {
 		{
 			id = this.checkAndAssignOtherTables(c);
 			if(id==null && type.getQueue().size()<MAX_CAPACITY_QUEUE)
-				type.addToQueue(c);
+			{
+				boolean exists = type.alreadyExistsCustomerInQueue(c.getName());
+				if(exists)
+					throw new CustomerAlreadyExistsException();
+				else
+					type.addToQueue(c);
+			}
+				
 			else if(type.getQueue().size()>=MAX_CAPACITY_QUEUE)
 				throw new OutOfBoundQueueException();
 		}
@@ -123,10 +128,8 @@ public class Dispatcher {
 					TableType tableType = this.getTableTypeByType(type);
 					if(tableType!=null)
 					{
-						Table released = tableType.freeTable(tableId);
-						String id = this.shuffleTables(type);
-						Bill b = new Bill(released, this.getCurrentDate(), revenue);
-						this.bills.add(b);
+						tableType.freeTable(tableId,revenue);
+						this.shuffleTables(type);
 					}
 			}
 		}
@@ -172,9 +175,14 @@ public class Dispatcher {
 	
 	public void addNewDay()
 	{
-		this.setCurrentDate(this.getCurrentDate()+1);
+		int newCurrentDate = this.getCurrentDate()+1;
+		this.setCurrentDate(newCurrentDate);
+		smallTable.addNewDay(newCurrentDate);
+		mediumTable.addNewDay(newCurrentDate);
+		largeTable.addNewDay(newCurrentDate);
+		extraLargeTable.addNewDay(newCurrentDate);
 	}
-	
+		
 	public int getSmallTablesAvailable()
 	{
 		return this.getSmallTable().getNumAvailableTables();
@@ -231,12 +239,5 @@ public class Dispatcher {
 		this.currentDate = currentDate;
 	}
 	
-	public ArrayList<Bill> getBills() {
-		return bills;
-	}
-
-	public void setBills(ArrayList<Bill> bills) {
-		this.bills = bills;
-	}
 
 }

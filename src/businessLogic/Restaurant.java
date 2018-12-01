@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import exceptions.CustomerAlreadyExistsException;
 import exceptions.CustomerNotFoundException;
 import exceptions.OutOfBoundQueueException;
 import exceptions.TableNotFoundException;
@@ -118,6 +119,10 @@ public class Restaurant {
 		{
 			System.out.println(e.getMessage());
 		}
+		catch (CustomerAlreadyExistsException e) 
+		{
+			System.out.println(e.getMessage());
+		}
 		return null;
 	}
 
@@ -155,10 +160,10 @@ public class Restaurant {
 		int extraLargeAvailable = dispatcher.getExtraLargeTablesAvailable();
 		
 		System.out.println("the current status of tables for each table type is:");
-		System.out.println("There are "+smallAvailable+" out of "+dispatcher.getSmallTable().getNumTables());
-		System.out.println("There are "+mediumAvailable+" out of "+dispatcher.getMediumTable().getNumTables());
-		System.out.println("There are "+largeAvailable+" out of "+dispatcher.getLargeTable().getNumTables());
-		System.out.println("There are "+extraLargeAvailable+" out of "+dispatcher.getExtraLargeTable().getNumTables());
+		System.out.println("There are "+smallAvailable+" out of "+dispatcher.getSmallTable().getNumTables()+ " small tables");
+		System.out.println("There are "+mediumAvailable+" out of "+dispatcher.getMediumTable().getNumTables()+ " medium tables");
+		System.out.println("There are "+largeAvailable+" out of "+dispatcher.getLargeTable().getNumTables()+ " large tables");
+		System.out.println("There are "+extraLargeAvailable+" out of "+dispatcher.getExtraLargeTable().getNumTables()+ " extra large tables");
 	}
 	
 	public void showTab_users(String tableType) {
@@ -166,12 +171,17 @@ public class Restaurant {
 		try 
 		{
 			ArrayList<Table> tables = dispatcher.getInformationByTableType(tableType);
+			boolean found=false;
 			System.out.println("Tables taken for type: "+ tableType );
 			for (int i = 0; i < tables.size(); i++) {
 				if(tables.get(i).isBusy())
+				{
+					found = true;
 					System.out.println("Table "+ tables.get(i).getId()+" is taken by "+tables.get(i).getCustomer().getName());
+				}
 			}
-
+			if(!found)
+				System.out.println("There are no "+tableType+" tables taken");
 			
 		} 
 		catch (TableNotFoundException e) 
@@ -186,9 +196,55 @@ public class Restaurant {
 	}
 	
 	public void showRev() {
-		ArrayList<Bill> bills = dispatcher.getBills();
-			
-		System.out.println("revenue is:");
+		TableType small = dispatcher.getSmallTable();
+		TableType medium = dispatcher.getMediumTable();
+		TableType large = dispatcher.getLargeTable();
+		TableType extraLarge = dispatcher.getExtraLargeTable();
+		
+		ArrayList<DayRevenue> smallRevenues =  small.getDailyRevenues();
+		ArrayList<DayRevenue> mediumRevenues =  medium.getDailyRevenues();
+		ArrayList<DayRevenue> largeRevenues =  large.getDailyRevenues();
+		ArrayList<DayRevenue> extraLargeRevenues =  extraLarge.getDailyRevenues();
+		int currentDay = -1;
+		int weekRevenueSmall = 0;
+		int weekRevenueMedium = 0;
+		int weekRevenueLarge = 0;
+		int weekRevenueExtraLarge= 0;
+		for (int i = 0; i < smallRevenues.size(); i++) {
+			currentDay = smallRevenues.get(i).getDay();
+			weekRevenueSmall += smallRevenues.get(i).getRevenue();
+			System.out.println("Day "+currentDay+" Revenue for small table with id: "+smallRevenues.get(i).getTable().getId()+" is "+smallRevenues.get(i).getRevenue());
+			if(mediumRevenues.size()==smallRevenues.size())
+			{
+				System.out.println("Day "+currentDay+" Revenue for medium table with id: "+mediumRevenues.get(i).getTable().getId()+" is "+mediumRevenues.get(i).getRevenue());
+				weekRevenueMedium += mediumRevenues.get(i).getRevenue();	
+			}
+			weekRevenueLarge += largeRevenues.get(i).getRevenue();
+			if(largeRevenues.size()==smallRevenues.size())
+			{
+				System.out.println("Day "+currentDay+" Revenue for large table with id: "+largeRevenues.get(i).getTable().getId()+" is "+largeRevenues.get(i).getRevenue());
+				weekRevenueLarge += mediumRevenues.get(i).getRevenue();	
+			}
+			weekRevenueExtraLarge += extraLargeRevenues.get(i).getRevenue();
+			if(extraLargeRevenues.size()==smallRevenues.size())
+			{
+				System.out.println("Day "+currentDay+" Revenue for extra large table with id: "+extraLargeRevenues.get(i).getTable().getId()+" is "+extraLargeRevenues.get(i).getRevenue());
+				weekRevenueExtraLarge += mediumRevenues.get(i).getRevenue();	
+			}
+			if(currentDay%7==0)
+			{
+				System.out.println("Weekly revenue for small tables is "+weekRevenueSmall);
+				System.out.println("Weekly revenue for medium tables is "+weekRevenueMedium);
+				System.out.println("Weekly revenue for large tables is "+weekRevenueLarge);
+				System.out.println("Weekly revenue for extra large tables is "+weekRevenueExtraLarge);
+				weekRevenueSmall=0;
+				weekRevenueMedium=0;
+				weekRevenueLarge=0;
+				weekRevenueExtraLarge=0;
+			}
+		}
+		
+		
 	}
 	
 	public void showRes() {
@@ -201,22 +257,22 @@ public class Restaurant {
 		if(smallQueue.size()>0)
 			System.out.println("For the small queue:");
 		for (int i = 0; i < smallQueue.size(); i++) {
-			System.out.println("Customer: "+smallQueue.get(i).getName()+ "with "+smallQueue.get(i).getCompanions()+" companions");
+			System.out.println("Customer: "+smallQueue.get(i).getName()+ " with "+smallQueue.get(i).getCompanions()+" companions");
 		}
 		if(mediumQueue.size()>0)
 			System.out.println("For the medium queue:");
 		for (int i = 0; i < mediumQueue.size(); i++) {
-			System.out.println("Customer: "+mediumQueue.get(i).getName()+ "with "+mediumQueue.get(i).getCompanions()+" companions");
+			System.out.println("Customer: "+mediumQueue.get(i).getName()+ " with "+mediumQueue.get(i).getCompanions()+" companions");
 		}
 		if(largeQueue.size()>0)
 			System.out.println("For the large queue:");
 		for (int i = 0; i < largeQueue.size(); i++) {
-			System.out.println("Customer: "+largeQueue.get(i).getName()+ "with "+largeQueue.get(i).getCompanions()+" companions");
+			System.out.println("Customer: "+largeQueue.get(i).getName()+ " with "+largeQueue.get(i).getCompanions()+" companions");
 		}
 		if(extraLargeQueue.size()>0)
 			System.out.println("For the extra large queue:");
 		for (int i = 0; i < extraLargeQueue.size(); i++) {
-			System.out.println("Customer: "+extraLargeQueue.get(i).getName()+ "with "+extraLargeQueue.get(i).getCompanions()+" companions");
+			System.out.println("Customer: "+extraLargeQueue.get(i).getName()+ " with "+extraLargeQueue.get(i).getCompanions()+" companions");
 		}
 	}
 	
