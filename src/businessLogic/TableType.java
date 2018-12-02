@@ -66,7 +66,7 @@ public class TableType {
 	{
 		boolean found = false; 
 		for (int i = 0; i < tables.size(); i++) {
-			if(tables.get(i).getId().equals(id))
+			if(tables.get(i).getId().equals(id) && tables.get(i).isBusy())
 			{
 				found = true;
 				tables.get(i).freeTable(revenue);
