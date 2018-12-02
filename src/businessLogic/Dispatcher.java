@@ -129,28 +129,26 @@ public class Dispatcher {
 					if(tableType!=null)
 					{
 						tableType.freeTable(tableId,revenue);
-						this.shuffleTables(type);
+						this.shuffleTables(tableType);
 					}
 			}
+			else
+				throw new TableNotFoundException();
 		}
 	}
 	
-	public String shuffleTables(String type) throws TableNotFoundException
+	public void shuffleTables(TableType tableType)
 	{
-		String id=null;
-		TableType tableType = this.getTableTypeByType(type);
-		if(tableType!=null && !tableType.getQueue().isEmpty())
+		if( !tableType.getQueue().isEmpty())
 		{
 			Customer c = tableType.getQueue().getFirst();
 			if(tableType.getNumAvailableTables()>0)
-				id = tableType.bookTable(c);
-			else
-				id = this.checkAndAssignOtherTables(c);
+			{
+				tableType.bookTable(c);
+				tableType.getQueue().removeFirst();
+			}
 		}
-		
-		if(id!=null)
-			tableType.getQueue().removeFirst();
-		return id;
+			
 	}
 	
 	public void cancelReservation(String name)throws CustomerNotFoundException
