@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import exceptions.CharactersOutOfBoundException;
 import exceptions.CustomerAlreadyExistsException;
 import exceptions.CustomerNotFoundException;
+import exceptions.NumberNegativeException;
 import exceptions.OutOfBoundQueueException;
 import exceptions.TableNotFoundException;
 
@@ -59,9 +61,14 @@ public class Restaurant {
 
 					switch (line[0]) {
 					case "ASSIGN":
-						String s = t.assign(line[1], Integer.parseInt(line[2]));
-						if(s!=null && !s.isEmpty())
-						System.out.println("RESPONSE: " + s);
+						try {
+							String s = t.assign(line[1], Integer.parseInt(line[2]));
+							if(s!=null && !s.isEmpty())
+							System.out.println("RESPONSE: " + s);
+						}
+						catch (Exception e) {
+							System.out.println(e.getMessage());
+						}
 						break;
 					case "FREE":
 						t.free(line[1], Integer.parseInt(line[2]));
@@ -88,7 +95,12 @@ public class Restaurant {
 						t.showRes();
 						break;						
 					case "CHANGE_TAB":
-						t.changeTab(line[1], Integer.parseInt(line[2]));
+						try {
+							t.changeTab(line[1], Integer.parseInt(line[2]));
+						}
+						catch (Exception e) {
+							System.out.println(e.getMessage());
+						}
 						break;
 					case "HELP":
 						System.out.println("1. Enter ASSIGN customer_name _number_of_people: ");
@@ -109,8 +121,12 @@ public class Restaurant {
 		}
 	}
 
-	public String assign(String name, int numPeople) {
+	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException {
 		Customer c = new Customer(name, numPeople);
+		if(numPeople<0)
+			throw new NumberNegativeException();
+		if(name.length()>10)
+			throw new CharactersOutOfBoundException();
 		try 
 		{
 			return dispatcher.assignCustomer(c);
@@ -205,46 +221,42 @@ public class Restaurant {
 		ArrayList<DayRevenue> mediumRevenues =  medium.getDailyRevenues();
 		ArrayList<DayRevenue> largeRevenues =  large.getDailyRevenues();
 		ArrayList<DayRevenue> extraLargeRevenues =  extraLarge.getDailyRevenues();
+		int overAllSmall = this.printDailyReport(smallRevenues);
+		System.out.println("Total Revenue for Small Tables is: "+overAllSmall);
+		System.out.println("---------------------------------------");
+		int overAllMedium = this.printDailyReport(mediumRevenues);
+		System.out.println("Total Revenue for Medium Tables is: "+overAllMedium);
+		System.out.println("---------------------------------------");
+		int overAllLarge = this.printDailyReport(largeRevenues);
+		System.out.println("Total Revenue for Large Tables is: "+overAllLarge);
+		System.out.println("---------------------------------------");
+		int overAllExtraLarge = this.printDailyReport(extraLargeRevenues);
+		System.out.println("Total Revenue for Extralarges Tables is: "+overAllExtraLarge);
+		System.out.println("---------------------------------------");
+		
+		System.out.println("---------------------------------------");
+		int total = overAllSmall+overAllMedium+overAllLarge+overAllExtraLarge;
+		System.out.println("Total revenue is: "+total);
+		
+	}
+	
+	public int printDailyReport (ArrayList<DayRevenue> revenues) {
 		int currentDay = -1;
-		int weekRevenueSmall = 0;
-		int weekRevenueMedium = 0;
-		int weekRevenueLarge = 0;
-		int weekRevenueExtraLarge= 0;
-		for (int i = 0; i < smallRevenues.size(); i++) {
-			currentDay = smallRevenues.get(i).getDay();
-			weekRevenueSmall += smallRevenues.get(i).getRevenue();
-			System.out.println("Day "+currentDay+" Revenue for small table with id: "+smallRevenues.get(i).getTable().getId()+" is "+smallRevenues.get(i).getRevenue());
-			if(mediumRevenues.size()==smallRevenues.size())
-			{
-				System.out.println("Day "+currentDay+" Revenue for medium table with id: "+mediumRevenues.get(i).getTable().getId()+" is "+mediumRevenues.get(i).getRevenue());
-				weekRevenueMedium += mediumRevenues.get(i).getRevenue();	
-			}
-			weekRevenueLarge += largeRevenues.get(i).getRevenue();
-			if(largeRevenues.size()==smallRevenues.size())
-			{
-				System.out.println("Day "+currentDay+" Revenue for large table with id: "+largeRevenues.get(i).getTable().getId()+" is "+largeRevenues.get(i).getRevenue());
-				weekRevenueLarge += mediumRevenues.get(i).getRevenue();	
-			}
-			weekRevenueExtraLarge += extraLargeRevenues.get(i).getRevenue();
-			if(extraLargeRevenues.size()==smallRevenues.size())
-			{
-				System.out.println("Day "+currentDay+" Revenue for extra large table with id: "+extraLargeRevenues.get(i).getTable().getId()+" is "+extraLargeRevenues.get(i).getRevenue());
-				weekRevenueExtraLarge += mediumRevenues.get(i).getRevenue();	
-			}
+		int overAllRevenue = 0;
+		int weekRevenue = 0;
+		for (int i = 0; i < revenues.size(); i++) {
+			currentDay = revenues.get(i).getDay();
+			overAllRevenue += revenues.get(i).getRevenue();
+			weekRevenue += revenues.get(i).getRevenue();
+			System.out.println("Day "+currentDay+" Revenue for small table with id: "+revenues.get(i).getTable().getId()+" is "+revenues.get(i).getRevenue());
 			if(currentDay%7==0)
 			{
-				System.out.println("Weekly revenue for small tables is "+weekRevenueSmall);
-				System.out.println("Weekly revenue for medium tables is "+weekRevenueMedium);
-				System.out.println("Weekly revenue for large tables is "+weekRevenueLarge);
-				System.out.println("Weekly revenue for extra large tables is "+weekRevenueExtraLarge);
-				weekRevenueSmall=0;
-				weekRevenueMedium=0;
-				weekRevenueLarge=0;
-				weekRevenueExtraLarge=0;
+				System.out.println("---------------------------------------");
+				System.out.println("Weekly revenue for small tables is "+weekRevenue);
+				weekRevenue=0;
 			}
 		}
-		
-		
+		return overAllRevenue;
 	}
 	
 	public void showRes() {
@@ -276,7 +288,27 @@ public class Restaurant {
 		}
 	}
 	
-	public void changeTab(String tableType, int numberOfTables) {
+	public void changeTab(String tableType, int numberOfTables) throws TableNotFoundException, NumberNegativeException
+	{
+		int smallTable = this.dispatcher.getSmallTable().getNumTables();
+		int mediumTable = this.dispatcher.getMediumTable().getNumTables();
+		int largeTable = this.dispatcher.getMediumTable().getNumTables();
+		int extraLargeTable = this.dispatcher.getMediumTable().getNumTables();
+		
+		if(numberOfTables<0)
+			throw new NumberNegativeException();
+		if(tableType.equals(this.dispatcher.SMALL_TABLE_TYPE))
+			smallTable = numberOfTables;
+		else if (tableType.equals(this.dispatcher.MEDIUM_TABLE_TYPE))
+			mediumTable = numberOfTables;
+		else if (tableType.equals(this.dispatcher.LARGE_TABLE_TYPE))
+			largeTable = numberOfTables;
+		else if (tableType.equals(this.dispatcher.EXTRA_LARGE_TABLE_TYPE))	
+			extraLargeTable = numberOfTables;
+		else
+			throw new TableNotFoundException();
+		
+		new Restaurant(smallTable,mediumTable,largeTable,extraLargeTable);
 		System.out.println("Now there are" + numberOfTables + "of type" + tableType );
 	}	
 }

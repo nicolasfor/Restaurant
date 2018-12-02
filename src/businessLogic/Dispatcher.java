@@ -12,15 +12,15 @@ public class Dispatcher {
 	
 	private static final int MAX_CAPACITY_QUEUE=20;
 	
-	private static final int SMALL_TABLE_PEOPLE_CAPACITY=2;
-	private static final int MEDIUM_TABLE_PEOPLE_CAPACITY=4;
-	private static final int LARGE_TABLE_PEOPLE_CAPACITY=6;
-	private static final int EXTRA_TABLE_PEOPLE_CAPACITY=9;
+	public static final int SMALL_TABLE_PEOPLE_CAPACITY=2;
+	public static final int MEDIUM_TABLE_PEOPLE_CAPACITY=4;
+	public static final int LARGE_TABLE_PEOPLE_CAPACITY=6;
+	public static final int EXTRA_TABLE_PEOPLE_CAPACITY=9;
 	
-	private static final String SMALL_TABLE_TYPE="SMALL";
-	private static final String MEDIUM_TABLE_TYPE="MEDIUM";
-	private static final String LARGE_TABLE_TYPE="LARGE";
-	private static final String EXTRA_LARGE_TABLE_TYPE="EXTRA_LARGE";
+	public static final String SMALL_TABLE_TYPE="SMALL";
+	public static final String MEDIUM_TABLE_TYPE="MEDIUM";
+	public static final String LARGE_TABLE_TYPE="LARGE";
+	public static final String EXTRA_LARGE_TABLE_TYPE="EXTRA_LARGE";
 	
 	private TableType smallTable;
 	private TableType mediumTable;
