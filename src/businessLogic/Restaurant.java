@@ -167,8 +167,6 @@ public class Restaurant {
 			System.out.println("Table: " + tableId + " has been released!");
 		} catch (TableNotFoundException e) {
 			System.out.println(e.getMessage());
-		} catch (NumberFormatException e) {
-			System.out.println("Table id format error");
 		}
 
 	}
