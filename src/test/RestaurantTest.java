@@ -2,16 +2,10 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.Scanner;
-
 import org.junit.jupiter.api.Test;
 
 class RestaurantTest {
-	
-	
-	
+
 	@Test
 	void testRestaurant() {
 		fail("Not yet implemented");
@@ -19,6 +13,11 @@ class RestaurantTest {
 
 	@Test
 	void testMain() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	void testReadLineByLineAndSplit() {
 		fail("Not yet implemented");
 	}
 
