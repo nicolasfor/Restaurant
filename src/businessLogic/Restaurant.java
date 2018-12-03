@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import exceptions.CharactersOutOfBoundException;
 import exceptions.CustomerAlreadyExistsException;
 import exceptions.CustomerNotFoundException;
-import exceptions.NotValidFileFormatException;
 import exceptions.NumberNegativeException;
 import exceptions.OutOfBoundQueueException;
 import exceptions.TableNotFoundException;
@@ -36,10 +35,15 @@ public class Restaurant {
 		this.dispatcher = new Dispatcher(s, m, l, xl);
 	}
 
-	public static void main(String[] args) throws IOException, NotValidFileFormatException {
+	public static void main(String[] args) {
 		String fileName = "tables.txt";
 		Path path = Paths.get(fileName);
-		
+		fileReader(path);
+		new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables).start();
+
+	}
+
+	public static void fileReader(Path path) {
 		try {
 			BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
 			String line;
@@ -47,12 +51,10 @@ public class Restaurant {
 				readLineByLineAndSplit(line);
 			}
 			reader.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.err.println(e.getMessage());
-			throw new NotValidFileFormatException();
 		}
 
-		new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables).start();
 	}
 
 	public void start() {
@@ -61,8 +63,6 @@ public class Restaurant {
 
 		do {
 			System.out.println(" Enter a command. If you need to kno the avaliables commands enter HELP ");
-
-			try {
 
 				String command = sc.nextLine();
 				String[] line = command.split(" ");
@@ -115,28 +115,23 @@ public class Restaurant {
 					System.out.println("7. Enter SHOW_RES");
 					System.out.println("8. Enter CHANGE_TAB table_type number_of_tables");
 				}
-			} catch (InputMismatchException e) {
-				System.out.println("Not allowed format. please cheack and try again!");
-				sc.next();
-			}
 
 		} while (sc.hasNextLine());
 
 	}
 
 	public static void readLineByLineAndSplit(String line) {
-		
+
 		String arraylines[] = line.split("-");
-		System.out.println("la linea " + arraylines[0]);		
-		if ( arraylines[0].equals("SMALL")) { 
-			smallTables = Integer.parseInt(arraylines[1]);			
-		} else if ( arraylines[0].equals("MEDIUM")) {
+		if (arraylines[0].equals("SMALL")) {
+			smallTables = Integer.parseInt(arraylines[1]);
+		} else if (arraylines[0].equals("MEDIUM")) {
 			mediumTables = Integer.parseInt(arraylines[1]);
-			
-		} else if ( arraylines[0].equals("LARGE")) { 
+
+		} else if (arraylines[0].equals("LARGE")) {
 			largeTables = Integer.parseInt(arraylines[1]);
-		} else if ( arraylines[0].equals("EXTRALARGE")) 
-			extraLargeTables = Integer.parseInt(arraylines[1]);		
+		} else if (arraylines[0].equals("EXTRALARGE"))
+			extraLargeTables = Integer.parseInt(arraylines[1]);
 	}
 
 	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException,

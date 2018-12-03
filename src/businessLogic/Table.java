@@ -20,13 +20,6 @@ public class Table {
 		this.dailyRevenue.add(d);
 	}
 
-	public String getType() {
-		return type;
-	}
-	public int getSeats() {
-		return seats;
-	}
-
 	public void bookTable(Customer c)
 	{
 		this.busy = c;

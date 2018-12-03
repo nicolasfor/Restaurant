@@ -105,14 +105,6 @@ public class TableType {
 		this.numAvailableTables = numTables;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public int getCapacity() {
-		return capacity;
-	}
-
 	public ArrayList<Table> getTables() {
 		return tables;
 	}

@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import businessLogic.Dispatcher;
 import businessLogic.Restaurant;
 import exceptions.CharactersOutOfBoundException;
-import exceptions.NotValidFileFormatException;
 import exceptions.NumberNegativeException;
 import exceptions.TableNotFoundException;
 import businessLogic.Customer;
@@ -48,6 +47,7 @@ class RestaurantTest {
 	private String changeTab = "CHANGE_TAB LARGE 2";
 	private String changeTabNegative = "CHANGE_TAB LARGE -2";
 	private String help = "HELP";
+	private String bad = "BAD";
 	
 	private final InputStream systemIn = System.in;
 
@@ -68,19 +68,22 @@ class RestaurantTest {
     }
 
     @Test
-	void main() throws IOException, NotValidFileFormatException {
+	void fileReader() throws IOException {
 		
-		assertThrows(NotValidFileFormatException.class, () -> {Restaurant.main(null);});
-	}
+		assertThrows(NullPointerException.class, () -> {Restaurant.fileReader(null);});
+		Restaurant.fileReader(Paths.get("emptyFile.txt"));
+		Restaurant.fileReader(Paths.get("fakeFile.txt"));
+		Restaurant.fileReader(Paths.get("tables.txt"));
+    }
 
 
 	@Test
-	void testRestaurant() {
-		fail("Not yet implemented");
+	void main() {
+		Restaurant.main(null);
 	}
 
 	@Test
-	void testStart() throws IOException, NotValidFileFormatException {
+	void testStart() throws IOException {
 		
         provideInput(assignSmall);
         restaurant.start();
@@ -150,11 +153,11 @@ class RestaurantTest {
 		provideInput(help);
 		restaurant.start();
 		
-		provideInput("adadad");
+		provideInput(bad);
 	}
 
 	@Test
-	void testReadLineByLineAndSplit() throws IOException, NotValidFileFormatException {
+	void testReadLineByLineAndSplit() throws IOException {
 		// 123		
 		
 		String smallLine = "SMALL-2";
@@ -250,6 +253,8 @@ class RestaurantTest {
 		
 		restaurant.assign("LARGE0", 5);
 		restaurant.free("LARGE-0", 10);
+		
+		restaurant.free("LARGE-0", 10);
 
 	}
 
@@ -333,6 +338,8 @@ class RestaurantTest {
 		restaurant.changeTab("MEDIUM", 2);
 		restaurant.changeTab("LARGE", 2);
 		restaurant.changeTab("EXTRA_LARGE", 2);
+		
+		assertThrows(TableNotFoundException.class,()->{ restaurant.changeTab("BAD_TYPE", 2);});
 	}
 
 }
