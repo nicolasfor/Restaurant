@@ -24,7 +24,7 @@ import javax.xml.stream.events.StartDocument;
 
 public class Restaurant {
 
-	private Dispatcher dispatcher;
+	public Dispatcher dispatcher;
 
 	static private int smallTables;
 	static private int mediumTables;
@@ -145,7 +145,7 @@ public class Restaurant {
 		}
 	}
 
-	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException {
+	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException, CustomerAlreadyExistsException, OutOfBoundQueueException {
 		Customer c = new Customer(name, numPeople);
 		if (numPeople < 0)
 			throw new NumberNegativeException();
@@ -154,11 +154,11 @@ public class Restaurant {
 		try {
 			return dispatcher.assignCustomer(c);
 		} catch (OutOfBoundQueueException e) {
-			System.out.println(e.getMessage());
+			System.out.println(e.getMessage());throw new OutOfBoundQueueException();
 		} catch (CustomerAlreadyExistsException e) {
-			System.out.println(e.getMessage());
+			System.out.println(e.getMessage());throw new CustomerAlreadyExistsException();
 		}
-		return null;
+		//return null; Eclipse sugirio que era inalcanzable
 	}
 
 	public void free(String tableId, int revenue) {
