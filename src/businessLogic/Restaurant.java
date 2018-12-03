@@ -37,16 +37,16 @@ public class Restaurant {
 	}
 
 	public static void main(String[] args) throws IOException, NotValidFileFormatException {
-		start();
-	}
-	
-	public static void start()
-	{
 		String fileName = "tables.txt";
 
 		readLineByLineAndSplit(fileName);
 
-		Restaurant t = new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables);
+		new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables).start();
+	}
+	
+	public void start()
+	{
+		
 		Scanner sc = new Scanner(System.in);
 
 		do {
@@ -56,11 +56,10 @@ public class Restaurant {
 
 				String command = sc.nextLine();
 				String[] line = command.split(" ");
-
 				switch (line[0]) {
 				case "ASSIGN":
 					try {
-						String s = t.assign(line[1], Integer.parseInt(line[2]));
+						String s = assign(line[1], Integer.parseInt(line[2]));
 						if (s != null && !s.isEmpty())
 							System.out.println("RESPONSE: " + s);
 					} catch (Exception e) {
@@ -68,30 +67,30 @@ public class Restaurant {
 					}
 					break;
 				case "FREE":
-					t.free(line[1], Integer.parseInt(line[2]));
+					free(line[1], Integer.parseInt(line[2]));
 					break;
 				case "CANCEL_RES":
-					t.cancelRes(line[1]);
+					cancelRes(line[1]);
 					break;
 				case "END_DAY":
-					t.endDay();
+					endDay();
 					break;
 				case "SHOW_REV":
-					t.showRev();
+					showRev();
 					break;
 				case "SHOW_TAB":
 					if (line[1].equals("STATUS")) {
-						t.showTab_status();
+						showTab_status();
 					} else if (line[1].equals("USERS")) {
-						t.showTab_users(line[2]);
+						showTab_users(line[2]);
 					}
 					break;
 				case "SHOW_RES":
-					t.showRes();
+					showRes();
 					break;
 				case "CHANGE_TAB":
 					try {
-						t.changeTab(line[1], Integer.parseInt(line[2]));
+						changeTab(line[1], Integer.parseInt(line[2]));
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
 					}
@@ -111,7 +110,7 @@ public class Restaurant {
 				sc.next();
 			}
 
-		} while (true);
+		} while (sc.hasNextLine());
 
 	}
 	public static void readLineByLineAndSplit(String filePath){
@@ -330,4 +329,14 @@ public class Restaurant {
 		new Restaurant(smallTable, mediumTable, largeTable, extraLargeTable);
 		System.out.println("Now there are" + numberOfTables + "of type" + tableType);
 	}
+
+	public Dispatcher getDispatcher() {
+		return dispatcher;
+	}
+
+	public void setDispatcher(Dispatcher dispatcher) {
+		this.dispatcher = dispatcher;
+	}
+	
+	
 }
