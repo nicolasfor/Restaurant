@@ -158,13 +158,7 @@ class RestaurantTest {
 		assertTrue(lineRead[0].equals(expectedTableType[2]));
 		lineRead = reader.readLine().split("-");
 		assertTrue(lineRead[0].equals(expectedTableType[3]));
-		
-		String fileName = "tables.txt";
-		restaurant.readLineByLineAndSplit(fileName);
-		assertEquals(2, restaurant.getDispatcher().getSmallTable().getTables().size());
-		assertEquals(2, restaurant.getDispatcher().getMediumTable().getTables().size());
-		assertEquals(2, restaurant.getDispatcher().getLargeTable().getTables().size());
-		assertEquals(2, restaurant.getDispatcher().getExtraLargeTable().getTables().size());
+
 	}
 
 	@Test
