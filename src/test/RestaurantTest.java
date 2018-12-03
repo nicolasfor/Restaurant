@@ -67,7 +67,11 @@ class RestaurantTest {
         System.setIn(systemIn);
     }
 
-	
+    @Test
+	void main() throws IOException, NotValidFileFormatException {
+		
+		assertThrows(NotValidFileFormatException.class, () -> {Restaurant.main(null);});
+	}
 
 
 	@Test
@@ -150,23 +154,29 @@ class RestaurantTest {
 	}
 
 	@Test
-	void testReadLineByLineAndSplit() throws IOException {
-		// 123
-		System.out.println(path.getName(0));
-		BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
-		assertNotNull(reader);
-
-		// 125
-		String[] expectedTableType = { "SMALL", "MEDIUM", "LARGE", "EXTRALARGE" };
-		String[] lineRead = reader.readLine().split("-");
-		assertTrue(lineRead[0].equals(expectedTableType[0]));
-		lineRead = reader.readLine().split("-");
-		assertTrue(lineRead[0].equals(expectedTableType[1]));
-		lineRead = reader.readLine().split("-");
-		assertTrue(lineRead[0].equals(expectedTableType[2]));
-		lineRead = reader.readLine().split("-");
-		assertTrue(lineRead[0].equals(expectedTableType[3]));
-
+	void testReadLineByLineAndSplit() throws IOException, NotValidFileFormatException {
+		// 123		
+		
+		String smallLine = "SMALL-2";
+		String mediumLine = "MEDIUM-2";
+		String largeLine = "LARGE-2";
+		String extraLargeLine = "EXTRALARGE-2";
+		
+		String [] smallExpected = smallLine.split("-");						
+		restaurant.readLineByLineAndSplit(smallLine);
+		assertEquals(Integer.parseInt(smallExpected[1]),restaurant.smallTables);
+		
+		String [] mediumExpected = mediumLine.split("-");
+		restaurant.readLineByLineAndSplit(mediumLine);
+		assertEquals(Integer.parseInt(mediumExpected[1]),restaurant.mediumTables);
+		
+		String [] largeExpected = largeLine.split("-");
+		restaurant.readLineByLineAndSplit(largeLine);
+		assertEquals(Integer.parseInt(largeExpected[1]),restaurant.largeTables);
+		
+		String [] extraLargeExpected = extraLargeLine.split("-");
+		restaurant.readLineByLineAndSplit(extraLargeLine);
+		assertEquals(Integer.parseInt(extraLargeExpected[1]),restaurant.extraLargeTables);
 	}
 
 	@Test

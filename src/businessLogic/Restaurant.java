@@ -26,10 +26,10 @@ public class Restaurant {
 
 	public Dispatcher dispatcher;
 
-	static private int smallTables;
-	static private int mediumTables;
-	static private int largeTables;
-	static private int extraLargeTables;
+	static public int smallTables;
+	static public int mediumTables;
+	static public int largeTables;
+	static public int extraLargeTables;
 
 	public Restaurant(Integer s, Integer m, Integer l, Integer xl) {
 		// TODO Auto-generated constructor stub
@@ -38,15 +38,25 @@ public class Restaurant {
 
 	public static void main(String[] args) throws IOException, NotValidFileFormatException {
 		String fileName = "tables.txt";
-
-		readLineByLineAndSplit(fileName);
+		Path path = Paths.get(fileName);
+		
+		try {
+			BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
+			String line;
+			while ((line = reader.readLine()) != null) {
+				readLineByLineAndSplit(line);
+			}
+			reader.close();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			throw new NotValidFileFormatException();
+		}
 
 		new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables).start();
 	}
-	
-	public void start()
-	{
-		
+
+	public void start() {
+
 		Scanner sc = new Scanner(System.in);
 
 		do {
@@ -113,39 +123,24 @@ public class Restaurant {
 		} while (sc.hasNextLine());
 
 	}
-	public static void readLineByLineAndSplit(String filePath){
-		Path path = Paths.get(filePath);
-		long count = 0;
-		try {
-			BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String arraylines[] = line.split("-");
-				if (count == 0 && arraylines[0].equals("SMALL")) {
-					smallTables = Integer.parseInt(arraylines[1]);
-					count++;
-				} else if (count == 1 && arraylines[0].equals("MEDIUM")) {
-					mediumTables = Integer.parseInt(arraylines[1]);
-					count++;
-				} else if (count == 2 && arraylines[0].equals("LARGE")) {
-					largeTables = Integer.parseInt(arraylines[1]);
-					count++;
-				} else if (count == 3 && arraylines[0].equals("EXTRALARGE")) {
-					extraLargeTables = Integer.parseInt(arraylines[1]);
-					count++;
-				} else
-					throw new NotValidFileFormatException();
-				// System.out.println("la linea " + arraylines[0] + " contiene: " +
-				// arraylines[1]);
-			}
-			reader.close();
-		} 
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
+
+	public static void readLineByLineAndSplit(String line) {
+		
+		String arraylines[] = line.split("-");
+		System.out.println("la linea " + arraylines[0]);		
+		if ( arraylines[0].equals("SMALL")) { 
+			smallTables = Integer.parseInt(arraylines[1]);			
+		} else if ( arraylines[0].equals("MEDIUM")) {
+			mediumTables = Integer.parseInt(arraylines[1]);
+			
+		} else if ( arraylines[0].equals("LARGE")) { 
+			largeTables = Integer.parseInt(arraylines[1]);
+		} else if ( arraylines[0].equals("EXTRALARGE")) 
+			extraLargeTables = Integer.parseInt(arraylines[1]);		
 	}
 
-	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException, CustomerAlreadyExistsException, OutOfBoundQueueException {
+	public String assign(String name, int numPeople) throws NumberNegativeException, CharactersOutOfBoundException,
+			CustomerAlreadyExistsException, OutOfBoundQueueException {
 		Customer c = new Customer(name, numPeople);
 		if (numPeople < 0)
 			throw new NumberNegativeException();
@@ -154,11 +149,13 @@ public class Restaurant {
 		try {
 			return dispatcher.assignCustomer(c);
 		} catch (OutOfBoundQueueException e) {
-			System.out.println(e.getMessage());throw new OutOfBoundQueueException();
+			System.out.println(e.getMessage());
+			throw new OutOfBoundQueueException();
 		} catch (CustomerAlreadyExistsException e) {
-			System.out.println(e.getMessage());throw new CustomerAlreadyExistsException();
+			System.out.println(e.getMessage());
+			throw new CustomerAlreadyExistsException();
 		}
-		//return null; Eclipse sugirio que era inalcanzable
+		// return null; Eclipse sugirio que era inalcanzable
 	}
 
 	public void free(String tableId, int revenue) {
@@ -335,6 +332,5 @@ public class Restaurant {
 	public void setDispatcher(Dispatcher dispatcher) {
 		this.dispatcher = dispatcher;
 	}
-	
-	
+
 }
