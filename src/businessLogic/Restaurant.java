@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 
-
 import exceptions.CharactersOutOfBoundException;
 import exceptions.CustomerAlreadyExistsException;
 import exceptions.CustomerNotFoundException;
@@ -18,7 +17,6 @@ import exceptions.NotValidFileFormatException;
 import exceptions.NumberNegativeException;
 import exceptions.OutOfBoundQueueException;
 import exceptions.TableNotFoundException;
-
 
 import java.util.Scanner;
 
@@ -40,7 +38,7 @@ public class Restaurant {
 
 		String fileName = "tables.txt";
 
-	 readLineByLineAndSplit(fileName);
+		readLineByLineAndSplit(fileName);
 
 		Restaurant t = new Restaurant(smallTables, mediumTables, largeTables, extraLargeTables);
 		Scanner sc = new Scanner(System.in);
@@ -110,32 +108,31 @@ public class Restaurant {
 		} while (true);
 	}
 
-	static void readLineByLineAndSplit(String filePath) throws IOException, NotValidFileFormatException, NumberFormatException{
+	static void readLineByLineAndSplit(String filePath)
+			throws IOException, NotValidFileFormatException, NumberFormatException {
 		Path path = Paths.get(filePath);
 		long count = 0;
 		try {
 			BufferedReader reader = Files.newBufferedReader(path, Charset.defaultCharset());
 			String line;
 			while ((line = reader.readLine()) != null) {
-				String arraylines[] = line.split("-");											
+				String arraylines[] = line.split("-");
 				if (count == 0 && arraylines[0].equals("SMALL")) {
 					smallTables = Integer.parseInt(arraylines[1]);
 					count++;
-				}
-				else if (count == 1 && arraylines[0].equals("MEDIUM")) {
+				} else if (count == 1 && arraylines[0].equals("MEDIUM")) {
 					mediumTables = Integer.parseInt(arraylines[1]);
 					count++;
-				}
-				else if (count == 2 && arraylines[0].equals("LARGE")) {
+				} else if (count == 2 && arraylines[0].equals("LARGE")) {
 					largeTables = Integer.parseInt(arraylines[1]);
 					count++;
-				}
-				else if (count == 3 && arraylines[0].equals("EXTRALARGE")) {
+				} else if (count == 3 && arraylines[0].equals("EXTRALARGE")) {
 					extraLargeTables = Integer.parseInt(arraylines[1]);
 					count++;
-				}else
-					throw new NotValidFileFormatException();			
-				//System.out.println("la linea " + arraylines[0] + " contiene: " + arraylines[1]);				
+				} else
+					throw new NotValidFileFormatException();
+				// System.out.println("la linea " + arraylines[0] + " contiene: " +
+				// arraylines[1]);
 			}
 			reader.close();
 		} catch (IOException e) {
