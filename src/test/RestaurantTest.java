@@ -12,7 +12,7 @@ class RestaurantTest {
 	}
 
 	@Test
-	void testMain() {
+	void testStart() {
 		fail("Not yet implemented");
 	}
 

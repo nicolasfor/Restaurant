@@ -20,6 +20,8 @@ import exceptions.TableNotFoundException;
 
 import java.util.Scanner;
 
+import javax.xml.stream.events.StartDocument;
+
 public class Restaurant {
 
 	private Dispatcher dispatcher;
@@ -35,7 +37,11 @@ public class Restaurant {
 	}
 
 	public static void main(String[] args) throws IOException, NotValidFileFormatException {
-
+		start();
+	}
+	
+	public static void start()
+	{
 		String fileName = "tables.txt";
 
 		readLineByLineAndSplit(fileName);
@@ -106,10 +112,9 @@ public class Restaurant {
 			}
 
 		} while (true);
-	}
 
-	static void readLineByLineAndSplit(String filePath)
-			throws IOException, NotValidFileFormatException, NumberFormatException {
+	}
+	public static void readLineByLineAndSplit(String filePath){
 		Path path = Paths.get(filePath);
 		long count = 0;
 		try {
@@ -135,8 +140,9 @@ public class Restaurant {
 				// arraylines[1]);
 			}
 			reader.close();
-		} catch (IOException e) {
-			System.err.println(" ERROR : " + e);
+		} 
+		catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 	}
 
