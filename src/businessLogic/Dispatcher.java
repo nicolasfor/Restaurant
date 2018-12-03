@@ -201,32 +201,17 @@ public class Dispatcher {
 		return smallTable;
 	}
 
-	public void setSmallTable(TableType smallTable) {
-		this.smallTable = smallTable;
-	}
-
 	public TableType getMediumTable() {
 		return mediumTable;
 	}
 
-	public void setMediumTable(TableType mediumTable) {
-		this.mediumTable = mediumTable;
-	}
 
 	public TableType getLargeTable() {
 		return largeTable;
 	}
 
-	public void setLargeTable(TableType largeTable) {
-		this.largeTable = largeTable;
-	}
-
 	public TableType getExtraLargeTable() {
 		return extraLargeTable;
-	}
-
-	public void setExtraLargeTable(TableType extraLargeTable) {
-		this.extraLargeTable = extraLargeTable;
 	}
 
 	public int getCurrentDate() {

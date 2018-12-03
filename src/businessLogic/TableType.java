@@ -97,10 +97,6 @@ public class TableType {
 		return queue;
 	}
 
-	public void setQueue(LinkedList<Customer> queue) {
-		this.queue = queue;
-	}
-
 	public int getNumAvailableTables() {
 		return numAvailableTables;
 	}
@@ -113,34 +109,16 @@ public class TableType {
 		return type;
 	}
 
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public int getCapacity() {
 		return capacity;
-	}
-
-	public void setCapacity(int capacity) {
-		this.capacity = capacity;
 	}
 
 	public ArrayList<Table> getTables() {
 		return tables;
 	}
 
-	public void setTables(ArrayList<Table> tables) {
-		this.tables = tables;
-	}
-
 	public int getNumTables() {
 		return numTables;
 	}
-
-	public void setNumTables(int numTables) {
-		this.numTables = numTables;
-	}
-	
-	
 
 }

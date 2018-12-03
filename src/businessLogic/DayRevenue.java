@@ -24,14 +24,8 @@ public class DayRevenue {
 	public int getDay() {
 		return day;
 	}
-	public void setDay(int day) {
-		this.day = day;
-	}
 	public Table getTable() {
 		return table;
-	}
-	public void setTable(Table table) {
-		this.table = table;
 	}
 	
 	

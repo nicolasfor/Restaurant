@@ -30,8 +30,8 @@ import exceptions.OutOfBoundQueueException;
 
 class RestaurantTest {
 	
-	private Restaurant restaurant = new Restaurant(1, 2, 1, 2);
-	private Restaurant rest1 = new Restaurant(1, 2, 3, 1);
+	private Restaurant restaurant = new Restaurant(1, 2, 2, 2);
+	//private Restaurant restaurant = new Restaurant(1, 2, 3, 1);
 	private Dispatcher dispatcher = restaurant.getDispatcher();
 	private String assignSmall = "ASSIGN Small 2";
 	private String assignSmallNegative = "ASSIGN Small -2";
@@ -66,14 +66,6 @@ class RestaurantTest {
     public void restoreSystemInputOutput() {
         System.setIn(systemIn);
     }
-
-	
-
-
-	@Test
-	void testRestaurant() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	void testStart() throws IOException, NotValidFileFormatException {
@@ -166,27 +158,39 @@ class RestaurantTest {
 		assertTrue(lineRead[0].equals(expectedTableType[2]));
 		lineRead = reader.readLine().split("-");
 		assertTrue(lineRead[0].equals(expectedTableType[3]));
-
+		
+		String fileName = "tables.txt";
+		restaurant.readLineByLineAndSplit(fileName);
+		assertEquals(2, restaurant.getDispatcher().getSmallTable().getTables().size());
+		assertEquals(2, restaurant.getDispatcher().getMediumTable().getTables().size());
+		assertEquals(2, restaurant.getDispatcher().getLargeTable().getTables().size());
+		assertEquals(2, restaurant.getDispatcher().getExtraLargeTable().getTables().size());
 	}
 
 	@Test
 	void testAssign() throws OutOfBoundQueueException, CustomerAlreadyExistsException, NumberNegativeException,
 			CharactersOutOfBoundException {
 		//151 Restaurant
-		assertThrows(NumberNegativeException.class, ()->{rest1.assign("Small1", -2);});
+		assertThrows(NumberNegativeException.class, ()->{restaurant.assign("Small1", -2);});
 		//153 Restaurant
 		assertThrows(CharactersOutOfBoundException.class, 
-				()->{rest1.assign("A very large name to be processed by this program ", 2);});
+				()->{restaurant.assign("A very large name to be processed by this program ", 2);});
 		// 71 dispatcher
-		assertEquals(rest1.dispatcher.getLargeTable().getTables().get(0).getId(), rest1.assign("Large1", 5));// CL1
-		rest1.assign("Small1", 2);
+		assertEquals(restaurant.dispatcher.getLargeTable().getTables().get(0).getId(), restaurant.assign("Large1", 5));// CL1
+		restaurant.assign("Small1", 2);
+		restaurant.assign("Small2", 2);
 		// 75 dispatcher
-		assertEquals(rest1.dispatcher.getMediumTable().getTables().get(0).getId(), rest1.assign("Medium1", 3));// CM1
+		assertEquals(restaurant.dispatcher.getMediumTable().getTables().get(1).getId(), restaurant.assign("Medium1", 3));// CM1
+		
+		restaurant.assign("Medium", 4);
+		restaurant.assign("Medium2", 4);
+		restaurant.assign("Large1", 6);
+		
 		// 76,81 dispatcher
-		rest1.assign("ExtraL1", 10);// CXL1"
-		assertNull(rest1.assign("ExtraL2", 8));// CXL2
-		rest1.assign("ExtraL3", 11);// CXL3
-		LinkedList<Customer> queue = rest1.dispatcher.getExtraLargeTable().getQueue();
+		restaurant.assign("ExtraL1", 10);// CXL1"
+		assertNull(restaurant.assign("ExtraL2", 8));// CXL2
+		restaurant.assign("ExtraL3", 11);// CXL3
+		LinkedList<Customer> queue = restaurant.dispatcher.getExtraLargeTable().getQueue();
 		boolean found = false;
 		for (int i = 0; i < queue.size(); i++) {
 			if (queue.get(i).getName() == "ExtraL3")// CXL3
@@ -196,18 +200,18 @@ class RestaurantTest {
 		// System.out.println("el primero en la cola es:" + queue.getFirst().getName());
 		// 76,79
 		assertThrows(CustomerAlreadyExistsException.class, () -> {
-			rest1.assign("ExtraL2", 9);
+			restaurant.assign("ExtraL2", 9);
 		});
 
 		// 85
 		//System.out.println("el ultimo en la cola es:" + queue.getLast().getName());
-		for (int i = 4; i < 22; i++) {
-			rest1.assign("ExtraL" + i, 14);
+		for (int i = 4; i < 21; i++) {
+			restaurant.assign("ExtraL" + i, 14);
 			//System.out.println("el ultimo en la cola es:" + queue.getLast().getName());
 		}		
 		//System.out.println("el tama�o de la cola es:" + rest1.dispatcher.getExtraLargeTable().getQueue().size());
 		assertThrows(OutOfBoundQueueException.class, () -> {
-			rest1.assign("ExtraL"+ 22, 14);
+			restaurant.assign("ExtraL"+ 22, 14);
 		});
 	}
 
@@ -229,7 +233,11 @@ class RestaurantTest {
 		restaurant.free("", 10);
 		assertTrue(dispatcher.getExtraLargeTable().getTables().get(0).isBusy());
 		
+		restaurant.assign("MEDIUM1", 3);
+		restaurant.free("MEDIUM-0", 10);
 		
+		restaurant.assign("LARGE0", 5);
+		restaurant.free("LARGE-0", 10);
 
 	}
 
@@ -249,12 +257,13 @@ class RestaurantTest {
 
 	@Test
 	void testShowTab_status() {
-		fail("Not yet implemented");
+		restaurant.showTab_status();
 	}
 
 	@Test
 	void testShowTab_users() {
-		fail("Not yet implemented");
+		restaurant.showTab_users("SMALL");
+		restaurant.showTab_users("SMALLBAD");
 	}
 
 	@Test
@@ -286,13 +295,32 @@ class RestaurantTest {
 	}
 
 	@Test
-	void testShowRes() {
-		fail("Not yet implemented");
+	void testShowRes() throws NumberNegativeException, CharactersOutOfBoundException, CustomerAlreadyExistsException, OutOfBoundQueueException {
+		restaurant.assign("ExtraLarg", 12);
+		restaurant.assign("ExtraLarg2", 10);
+		restaurant.assign("ExtraLarg3", 10);
+		restaurant.assign("Large", 5);
+		restaurant.assign("Large2", 5);
+		restaurant.assign("Large3", 5);
+		restaurant.assign("Medium", 3);
+		restaurant.assign("Medium2", 3);
+		restaurant.assign("Medium3", 3);
+		restaurant.assign("Small", 2);
+		restaurant.assign("Small2", 2);
+		restaurant.assign("Small3", 2);
+		restaurant.showRes();
+		assertEquals(2, dispatcher.getSmallTable().getQueue().size());
+		assertEquals(1, dispatcher.getMediumTable().getQueue().size());
+		assertEquals(1, dispatcher.getLargeTable().getQueue().size());
+		assertEquals(1, dispatcher.getExtraLargeTable().getQueue().size());
 	}
 
 	@Test
-	void testChangeTab() {
-		fail("Not yet implemented");
+	void testChangeTab() throws TableNotFoundException, NumberNegativeException {
+		restaurant.changeTab("SMALL", 2);
+		restaurant.changeTab("MEDIUM", 2);
+		restaurant.changeTab("LARGE", 2);
+		restaurant.changeTab("EXTRA_LARGE", 2);
 	}
 
 }

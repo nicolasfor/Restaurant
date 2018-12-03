@@ -15,18 +15,8 @@ public class Customer {
 		return companions;
 	}
 
-	public void setCompanions(int companions) {
-		this.companions = companions;
-	}
-
 	public String getName() {
 		return name;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	
 
 }

@@ -331,10 +331,4 @@ public class Restaurant {
 	public Dispatcher getDispatcher() {
 		return dispatcher;
 	}
-
-	public void setDispatcher(Dispatcher dispatcher) {
-		this.dispatcher = dispatcher;
-	}
-	
-	
 }
