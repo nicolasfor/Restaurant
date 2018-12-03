@@ -43,6 +43,7 @@ class RestaurantTest {
 	private String showRev = "SHOW_REV";
 	private String showTabStatus = "SHOW_TAB STATUS";
 	private String showTabUserExtra = "SHOW_TAB USERS EXTRA_LARGE";
+	private String showTabBad = "SHOW_TAB BAD EXTRA_LARGE";
 	private String showRes = "SHOW_RES";
 	private String changeTab = "CHANGE_TAB LARGE 2";
 	private String changeTabNegative = "CHANGE_TAB LARGE -2";
@@ -136,6 +137,9 @@ class RestaurantTest {
 		assertTrue(dispatcher.getExtraLargeTable().getTables().get(0).isBusy());
 		assertTrue(dispatcher.getExtraLargeTable().getTables().get(1).isBusy());
 	
+		provideInput(showTabBad);
+		restaurant.start();
+		
 		//88
 		provideInput(assignExtra3);
 		restaurant.start();
@@ -154,6 +158,9 @@ class RestaurantTest {
 		restaurant.start();
 		
 		provideInput(bad);
+		//98
+		provideInput(" ");
+		restaurant.start();
 	}
 
 	@Test

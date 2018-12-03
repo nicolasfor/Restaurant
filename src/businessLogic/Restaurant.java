@@ -60,17 +60,18 @@ public class Restaurant {
 	public void start() {
 
 		Scanner sc = new Scanner(System.in);
-
+		try {
 		do {
 			System.out.println(" Enter a command. If you need to kno the avaliables commands enter HELP ");
 
 				String command = sc.nextLine();
 				String[] line = command.split(" ");
-				switch (line[0]) {
+				String lineZero = line.length>0?line[0]:"";
+				switch (lineZero) {
 				case "ASSIGN":
 					try {
 						String s = assign(line[1], Integer.parseInt(line[2]));
-						if (s != null && !s.isEmpty())
+						if (s != null )
 							System.out.println("RESPONSE: " + s);
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
@@ -114,9 +115,16 @@ public class Restaurant {
 					System.out.println("6. Enter SHOW_TAB STATUS|{USERS table_type}");
 					System.out.println("7. Enter SHOW_RES");
 					System.out.println("8. Enter CHANGE_TAB table_type number_of_tables");
+					break;
+				 default:	
+					 System.out.println("Please enter a valid answer");
 				}
 
 		} while (sc.hasNextLine());
+		}
+		catch(Exception e) {
+			e.getMessage();
+		}
 
 	}
 
