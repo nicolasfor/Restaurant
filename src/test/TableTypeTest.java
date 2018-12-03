@@ -4,21 +4,46 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import businessLogic.Customer;
+import businessLogic.TableType;
+
 class TableTypeTest {
 
+	private TableType tableType = new TableType(2, "SMALL", 2);
+	private Customer customerSmall = new Customer("Small", 2);
+	private Customer customerSmall2 = new Customer("Small2", 2);
+	private Customer customerSmall3 = new Customer("Small3", 2);
+	
 	@Test
-	void testTableType() {
-		fail("Not yet implemented");
+	void testTableTypeTest() {
+		//25 
+		TableType tableType2 = new TableType(1, "EXTRALARGE", 5);
+		assertTrue(tableType2.getTables().size()>0);
+		//25 false
+		TableType tableTypeNull = new TableType(0, "LARGE", 5);
+		assertTrue(tableTypeNull.getTables().size()==0);
 	}
-
+	
 	@Test
 	void testBookTable() {
-		fail("Not yet implemented");
+		String id = tableType.bookTable(customerSmall);
+		//32
+		assertEquals(tableType.getTables().get(0).getId(), id);
+		tableType.bookTable(customerSmall2);
+		//32 False
+		String idNull = tableType.bookTable(customerSmall3);
+		assertNull(idNull);
 	}
 
 	@Test
 	void testAddNewDay() {
-		fail("Not yet implemented");
+		//45
+		tableType.addNewDay(2);
+		assertEquals(2, tableType.getTables().get(0).getDailyRevenue().get(1).getDay());
+		// 25 false
+		TableType tableTypeNull = new TableType(0, "LARGE", 5);
+		tableTypeNull.addNewDay(2);
+		assertTrue(tableTypeNull.getTables().size()==0);
 	}
 
 	@Test
