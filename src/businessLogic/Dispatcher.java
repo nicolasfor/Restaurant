@@ -57,8 +57,12 @@ public class Dispatcher {
 			return this.getMediumTable();
 		else if(name.equals(LARGE_TABLE_TYPE))
 			return this.getLargeTable();
+		/*
+		 * BUG INYECTION TABLE LARGE IS USED ON EXTRA_TYPE
+		 */
 		else if(name.equals(EXTRA_LARGE_TABLE_TYPE))
-			return this.getExtraLargeTable();
+			return this.getLargeTable();
+			//return this.getExtraLargeTable();
 		throw new TableNotFoundException();
 	}
 	
@@ -128,7 +132,10 @@ public class Dispatcher {
 					TableType tableType = this.getTableTypeByType(type);
 					if(tableType!=null)
 					{
-						tableType.freeTable(tableId,revenue);
+						/*
+						 * BUG INYECTION Revenue is multiplied by a negative
+						 */
+						tableType.freeTable(tableId,revenue*-1);
 						this.shuffleTables(tableType);
 					}
 			}
@@ -177,7 +184,10 @@ public class Dispatcher {
 		this.setCurrentDate(newCurrentDate);
 		smallTable.addNewDay(newCurrentDate);
 		mediumTable.addNewDay(newCurrentDate);
-		largeTable.addNewDay(newCurrentDate);
+		/*
+		 * BUG INYECTION Large table new day is not changed
+		 */
+		//largeTable.addNewDay(newCurrentDate);
 		extraLargeTable.addNewDay(newCurrentDate);
 	}
 		
